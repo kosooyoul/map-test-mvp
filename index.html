@@ -26,7 +26,7 @@ const examsForMvp = [
             "The cat is laying in the sand.",
             "The cat is lying in the sand.",
         ],
-        "expected": { "index": 1, "value": "\"The cat is lying in the sun.\"" },
+        "expected": { "index": 1, "value": "The cat is lying in the sun." },
     },
     {
         "title": "Analyze the experiment results and answer the question.",
@@ -401,7 +401,7 @@ class MapTestView {
                 correctElement.append($('<span style="white-space: nowrap; margin: 0px 12px; font-weight: bold; color: #333333;">').text(`Question ${i + 1}.`));
                 correctElement.append($('<span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0px 12px;">').text(exam.title));
                 correctElement.append($('<span style="white-space: nowrap; margin: 0px 12px; font-weight: bold; color: #309000;">').text('CORRECT'));
-                element.append(correctElement);
+                itemsElement.append(correctElement);
             } else {
                 const incorrectElement = $('<div class="report-item-incorrect">');
                 const incorrectHeaderElement = $('<div class="report-item-incorrect-header">');
