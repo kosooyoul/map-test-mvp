@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+const examsForMvp = [
+    {
+        "title": "Solve the following math problem.",
+        "description": "If 2x + 5 = 15, what is the value of x?",
+        "choices": ["1", "2", "3", "4", "5"],
+        "expected": { "index": 4, "value": "5" },
+        "hint": [
+            "To find the value of x, subtract 5 from both sides of the equation:",
+            "2x+5−5=15−5.",
+            "This simplifies to:",
+            "2x=10.",
+            "Divide both sides by 2:",
+            "x=5.",
+            "So, the value of x is 5.",
+        ].join("<br>"),
+    },
+    {
+        "title": "Choose the correct sentence.",
+        "choices": [
+            "The cat is laying in the sun.",
+            "The cat is lying in the sun.",
+            "The cat is laying in the sand.",
+            "The cat is lying in the sand.",
+        ],
+        "expected": { "index": 1, "value": "\"The cat is lying in the sun.\"" },
+    },
+    {
+        "title": "Analyze the experiment results and answer the question.",
+        "description": "In an experiment studying the effect of different temperatures on enzyme activity, which temperature range resulted in the highest enzyme activity?",
+        "choices": [
+            "0-10°C",
+            "20-30°C",
+            "40-50°C",
+            "60-70°C",
+            "80-90°C",
+        ],
+        "expected": { "index": 1, "value": "20-30°C" },
+        "hint": "Examine the data related to enzyme activity at different temperature ranges. Identify the temperature range that resulted in the highest enzyme activity.",
+    },
+    {
+        "title": "Who was the first President of the United States?",
+        "choices": [
+            "Thomas Jefferson",
+            "John Adams",
+            "George Washington",
+            "James Madison",
+            "Benjamin Franklin",
+        ],
+        "expected": { "index": 2, "value": "George Washington" },
+        "hint": "The first President of the United States was:",
+    },
+    {
+        "title": "Read the following passage and answer the question:",
+        "description": "The sun dipped below the horizon, casting a warm glow across the landscape. The mountains were silhouetted against the orange sky. What is the main mood or tone of the passage?",
+        "choices": [
+            "Joyful",
+            "Melancholic",
+            "Frightening",
+            "Exciting",
+            "Humorous",
+        ],
+        "expected": { "index": 1, "value": "Melancholic" },
+    },
+]
+
+</script>
+<style>
+* {
+    font-family: sans-serif;
+}
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+}
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+button {
+    border-radius: 8px;
+    border-width: 1px;
+    border-style: solid;
+    outline: none;
+    cursor: pointer;
+}
+
+.app {
+    display: grid;
+    position: relative;
+    grid-template-rows: 64px auto;
+    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 480px;
+    max-height: 640px;
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+.header {
+    position: relative;
+    width: 100%;
+    height: 64px;
+    background-color: white;
+    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.2);
+}
+.footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    position: absolute;
+    width: 100%;
+    height: 64px;
+    left: 0px;
+    bottom: 0px;
+    /* background-color: gray; */
+}
+.body {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+.body>* {
+    margin: 20px;
+    padding-bottom: 64px;
+}
+.exam {
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: default;
+}
+.exam-number {
+    font-size: 18px;
+    margin-left: 4px;
+    margin-right: 4px;
+    margin-top: 8px;
+    margin-bottom: 16px;
+    font-weight: bold;
+    color: #333333;
+}
+.exam-title {
+    font-size: 18px;
+    margin: 16px 8px;
+}
+.exam-description {
+    font-size: 16px;
+    margin-left: 12px;
+    margin-right: 12px;
+    margin-top: 12px;
+    margin-bottom: 24px;
+}
+.choice {
+    display: flex;
+    width: 100%;
+    max-width: calc(100% - 48px);
+    border: 1px solid gray;
+    cursor: pointer;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 4px 12px;
+    font-size: 14px;
+}
+.choice:hover {
+    border: 1px solid cyan;
+}
+.choice-selected {
+    border: 1px solid rgb(0, 200, 255);
+    box-shadow: inset 0px 0px 0px 2px rgb(100, 255, 255);
+    background-color: rgb(245, 250, 250);
+}
+.choice-number {
+    width: 24px;
+    margin: 0px 4px;
+}
+.choice-title {
+    margin: 0px 4px;
+}
+
+.report {
+    display: flex;
+    flex-direction: column;
+}
+.report-item-correct {
+    display: flex;
+    width: 100%;
+    border: 1px solid rgb(0, 200, 80);
+    cursor: pointer;
+    border-radius: 8px;
+    padding: 10px 0px;
+    margin: 4px 0px;
+    font-size: 14px;
+    background-color: white;
+}
+
+.report-item-incorrect {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    border-radius: 8px;
+    margin: 4px 0px;
+    background: #eeeeee;
+    border: 1px solid transparent;
+}
+
+.report-item-incorrect-header {
+    display: flex;
+    width: 100%;
+    border: 1px solid rgb(200, 80, 0);
+    cursor: pointer;
+    border-radius: 8px;
+    padding: 10px 0px;
+    font-size: 14px;
+    background-color: white;
+}
+.report-item-incorrect-explain {
+    padding: 12px;
+}
+
+</style>
+</head>
+<body>
+
+<div class="app">
+    <div class="header">
+        <div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; background-image: url('https://gongmap.com/img/logo.png'); background-repeat: no-repeat; background-position: center; background-size: 84px;"></div>
+        <div style="position: absolute; bottom: 0px; width: 100%; height: 1px; background-color: #f0702a; border-top: 2px solid #ea2a2a;"></div>
+    </div>
+    <div class="body">
+        <div id="map-test-view"></div>
+    </div>
+    <div class="footer">
+        <button id="map-test-prev-exam" style="width: 96px; height: 48px; float: left;">Previous Question</button>
+        <div style="background-color: gray; width: 72px; height: 24px; text-align: center; line-height: 24px; border-radius: 8px; color: white; font-size: 12px;"><span id="current-exam-number"></span> / <span id="total-exams-count"></span></div>
+        <button id="map-test-next-exam" style="width: 96px; height: 48px; float: right;">Next Question</button>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+$.prototype.clear = function() {
+    this.html('');
+};
+</script>
+<script>
+class MapTestView {
+    #rootElement;
+
+    #exams;
+    #answers;
+
+    #currentExamNumber;
+    #finished;
+
+    constructor(rootElement) {
+        this.#rootElement = rootElement;
+    }
+
+    load(exams) {
+        this.#exams = exams;
+        this.#answers = new Array(exams.length).fill({ number: null, value: null });
+        this.#currentExamNumber = 1;
+        this.#finished = false;
+        this.#validate();
+    }
+
+    initExam() {
+        this.#answers = new Array(exams.length).fill({ number: null, value: null });
+        this.#currentExamNumber = 1;
+        this.#finished = false;
+    }
+
+    finishExam() {
+        this.#currentExamNumber = null;
+        this.#finished = true;
+
+        this.#rootElement.find('.exam').hide();
+
+        this.#rootElement.append(this.#createReport());
+    }
+
+    gotoExam(examNumber) {
+        if (this.#finished) return;
+        if (examNumber < 1) return;
+        if (examNumber > this.#exams.length) return;
+
+        this.#rootElement.find('.exam').hide();
+
+        const answer = this.#answers[examNumber - 1];
+        const examElement = this.#rootElement.find(`.exam-${examNumber}`);
+        examElement.find('.choice').removeClass('choice-selected');
+        if (answer.index != null) {
+            examElement.find('.choice').eq(answer.index).addClass('choice-selected');
+        }
+        this.#rootElement.find(`.exam-${examNumber}`).show();
+
+        this.#currentExamNumber = examNumber;
+    }
+
+    prevExam() {
+        this.gotoExam(this.#currentExamNumber - 1);
+    }
+
+    nextExam() {
+        this.gotoExam(this.#currentExamNumber + 1);
+    }
+
+    isLastExam() {
+        return this.#currentExamNumber == this.#answers.length;
+    }
+
+    isExamFinished() {
+        return this.#currentExamNumber == this.#answers.length;
+    }
+
+    getAnswers() {
+        return this.#answers.map(answer => Object.freeze(answer));
+    }
+
+    getCurrentExamNumber() {
+        return this.#currentExamNumber;
+    }
+
+    getExamsCount() {
+        return this.#exams.length;
+    }
+
+    #validate() {
+        this.#rootElement.clear();
+
+        this.#exams.forEach((exam, examIndex) => {
+            const examNumber = examIndex + 1;
+            const examElement = $(`<div class="exam exam-${examNumber}">`);
+            if (examIndex != 0) {
+                examElement.hide();
+            }
+
+            const questionElement = $('<div class="exam-number">').text(`Question ${examNumber}.`);
+            examElement.append(questionElement);
+
+            const titleElement = $('<div class="exam-title">').text(exam.title);
+            examElement.append(titleElement);
+
+            if (exam.description) {
+                const descriptionElement = $('<div class="exam-description">').text(exam.description);
+                examElement.append(descriptionElement);
+            }
+
+            if (exam.choices) {
+                exam.choices.forEach((choice, choiceIndex) => {
+                    const choiceNumber = choiceIndex + 1;
+                    const choiceElement = $('<div class="choice">');
+                    choiceElement.append($('<div class="choice-number">').text(`${choiceNumber} )`));
+                    choiceElement.append($('<div class="choice-title">').text(choice));
+                    choiceElement.on('click', () => {
+                        examElement.find('.choice').removeClass('choice-selected');
+                        choiceElement.addClass('choice-selected');
+                        this.#answers[examIndex] = { index: choiceIndex, value: choice };
+                    })
+                    examElement.append(choiceElement);
+                });
+                
+            }
+
+            this.#rootElement.append(examElement);
+        });
+    }
+
+    #createReport() {
+        const element = $('<div class="report">');
+        let correctCount = 0;
+
+        const itemsElement = $('<div class="report-items">');
+        for (let i = 0; i < this.#exams.length; i++) {
+            const exam = this.#exams[i];
+            const answer = this.#answers[i];
+            const correct = answer.index != null && answer.index == exam.expected.index;
+
+            if (correct) {
+                correctCount++;
+            }
+
+            const reportItemElement = $('<div class="report-item">');
+            if (correct) {
+                const correctElement = $('<div class="report-item-correct">');
+                correctElement.append($('<span style="white-space: nowrap; margin: 0px 12px; font-weight: bold; color: #333333;">').text(`Question ${i + 1}.`));
+                correctElement.append($('<span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0px 12px;">').text(exam.title));
+                correctElement.append($('<span style="white-space: nowrap; margin: 0px 12px; font-weight: bold; color: #309000;">').text('CORRECT'));
+                element.append(correctElement);
+            } else {
+                const incorrectElement = $('<div class="report-item-incorrect">');
+                const incorrectHeaderElement = $('<div class="report-item-incorrect-header">');
+                incorrectHeaderElement.append($('<span style="white-space: nowrap; margin: 0px 12px; font-weight: bold; color: #333333;">').text(`Question ${i + 1}.`));
+                incorrectHeaderElement.append($('<span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0px 12px;">').text(exam.title));
+                incorrectHeaderElement.append($('<span style="white-space: nowrap; margin: 0px 12px; font-weight: bold; color: #f03000;">').text('INCORRECT'));
+                incorrectElement.append(incorrectHeaderElement);
+
+                const incorrectExplainElement = $('<div class="report-item-incorrect-explain">');
+                incorrectExplainElement.append($('<div style="margin: 8px 4px; font-weight: bold; font-size: 18px; color: #333333;">').text('Question.'));
+                incorrectExplainElement.append($('<div style="margin: 8px 4px; font-size: 16px;">').text(exam.title));
+                if (exam.description) {
+                    incorrectExplainElement.append($('<div style="margin: 8px 4px; font-size: 16px;">').text(exam.description));
+                }
+                incorrectExplainElement.append($('<div style="margin: 8px 4px; margin-top: 20px; font-weight: bold; font-size: 18px; color: #333333;">').text('Solution.'));
+                if (exam.hint) {
+                    incorrectExplainElement.append($('<div style="margin: 8px 4px; font-size: 16px;">').html(exam.hint));
+                }
+                incorrectExplainElement.append($('<div style="margin: 8px 4px; font-size: 16px;">').html(`The correct answer is <span style="font-weight: bold; font-size: 18px;">"${exam.expected.value}"</span>`));
+                incorrectElement.append(incorrectExplainElement);
+
+                itemsElement.append(incorrectElement);
+            }
+        }
+
+        element.append($('<div style="font-size: 18px; margin: 24px; text-align: center;">').html(`<span style="font-size: 24px; font-weight: bold;">${correctCount}</span> correct answers`));
+        element.append(itemsElement);
+
+        return element;
+    }
+}
+
+const mapTestView = new MapTestView($('#map-test-view'));
+mapTestView.load(examsForMvp);
+
+$('#current-exam-number').text(mapTestView.getCurrentExamNumber());
+$('#total-exams-count').text(mapTestView.getExamsCount());
+
+$('#map-test-prev-exam').on('click', () => {
+    mapTestView.prevExam();
+    $('#current-exam-number').text(mapTestView.getCurrentExamNumber());
+});
+$('#map-test-next-exam').on('click', () => {
+    if (mapTestView.isLastExam()) {
+        if (confirm('Do you want to finish the exam?')) {
+            mapTestView.finishExam();
+            $('.footer').hide();
+        } else {
+            return;
+        }
+    }
+    mapTestView.nextExam();
+    $('#current-exam-number').text(mapTestView.getCurrentExamNumber());
+});
+
+</script>
+
+</body>
+</html>
